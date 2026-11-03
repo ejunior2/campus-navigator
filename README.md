@@ -1,1 +1,28 @@
-# campus-navigator
+# Campus Navigator
+
+Roteamento com consciência de conectividade em um mapa de campus simulado,
+com dashboard, agente de LLM e roteador com Q-Learning. (Em desenvolvimento.)
+
+## Gerador de dados
+
+Gera um grid de campus 20x20, pontos de acesso Wi-Fi e leituras horárias
+de qualidade de sinal por 14 dias.
+
+> Todos os dados são **sintéticos**. O modelo de sinal é uma simplificação
+> inventada, não uma medição real.
+
+## Instalação
+
+    python -m venv .venv
+    .venv\Scripts\Activate.ps1
+    pip install -r requirements.txt
+
+## Como rodar
+
+    python -m src.data_gen.generate
+    python -m pytest
+
+## Roadmap
+
+- [x] Dia 1: gerador de dados sintéticos
+- [ ] KPIs em SQL, dashboard, agente de LLM, automação n8n, roteador Q-Learning# campus-navigator
