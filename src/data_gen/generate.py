@@ -61,7 +61,50 @@ def place_access_points(grid: pd.DataFrame, n_aps: int = 8,
     aps["range"] = 8
     return aps
 
+def compute_signal(grid: pd.DataFrame, aps: pd.DataFrame,
+                   days: int = 14, seed: int = 42) -> pd.DataFrame:
+    rng = np.random.default_rng(seed)
+
+    # Só células caminháveis têm leitura
+    cells = grid.loc[grid["walkable"], ["x", "y"]].to_numpy()
+
+    # Distância de cada célula até cada AP (matriz células x APs)
+    diff = cells[:, None, :] - aps[["x", "y"]].to_numpy()[None, :, :]
+    dist = np.sqrt((diff ** 2).sum(axis=2))
+
+    # Usa o AP mais próximo de cada célula
+    nearest = dist.argmin(axis=1)
+    min_dist = dist.min(axis=1)
+    ap_range = aps["range"].to_numpy()[nearest]
+
+    # Qualidade base: 100 perto do AP, 0 no limite do alcance
+    base = np.clip(100 * (1 - min_dist / ap_range), 0, 100)
+
+    # Horários: de hora em hora, durante os dias pedidos
+    timestamps = pd.date_range("2026-10-01", periods=days * 24, freq="h")
+    hours = timestamps.hour.to_numpy()
+
+    # Fator de congestionamento: pico de aula reduz 30%
+    peak = ((hours >= 10) & (hours < 12)) | ((hours >= 19) & (hours < 21))
+    factor = np.where(peak, 0.7, 1.0)
+
+    # Combina tudo: matriz horários x células
+    quality = base[None, :] * factor[:, None]
+    quality += rng.normal(0, 3, size=quality.shape)
+    quality = np.clip(quality, 0, 100).round(1)
+
+    # Transforma a matriz em tabela longa
+    return pd.DataFrame({
+        "timestamp": np.repeat(timestamps, len(cells)),
+        "x": np.tile(cells[:, 0], len(timestamps)),
+        "y": np.tile(cells[:, 1], len(timestamps)),
+        "signal_quality": quality.ravel(),
+    })    
+
 if __name__ == "__main__":
     g = build_grid()
     aps = place_access_points(g)
-    print(aps)
+    signal = compute_signal(g, aps)
+    print(signal.head())
+    print(signal.shape)
+    print(signal["signal_quality"].describe())
