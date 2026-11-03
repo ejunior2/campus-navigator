@@ -101,10 +101,16 @@ def compute_signal(grid: pd.DataFrame, aps: pd.DataFrame,
         "signal_quality": quality.ravel(),
     })    
 
-if __name__ == "__main__":
+def main():
     g = build_grid()
     aps = place_access_points(g)
     signal = compute_signal(g, aps)
-    print(signal.head())
-    print(signal.shape)
-    print(signal["signal_quality"].describe())
+
+    g.to_csv("data/grid_cells.csv", index=False)
+    aps.to_csv("data/access_points.csv", index=False)
+    signal.to_csv("data/signal_readings.csv", index=False)
+    print("Arquivos gerados em data/")
+
+
+if __name__ == "__main__":
+    main()
