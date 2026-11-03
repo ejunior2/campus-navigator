@@ -57,8 +57,8 @@ def place_access_points(grid: pd.DataFrame, n_aps: int = 8,
     aps = pd.DataFrame(chosen, columns=["x", "y"])
     aps.insert(0, "ap_id", range(len(aps)))
 
-    # Alcance do sinal: 8 células
-    aps["range"] = 8
+    # Alcance do sinal: 6 células
+    aps["range"] = 6
     return aps
 
 def compute_signal(grid: pd.DataFrame, aps: pd.DataFrame,
