@@ -21,8 +21,11 @@ de qualidade de sinal por 14 dias.
 
     python -m src.data_gen.generate
     python -m pytest
+    python -m src.kpis.db
+    python -m src.kpis.queries
 
 ## Roadmap
 
 - [x] Dia 1: gerador de dados sintéticos
-- [ ] KPIs em SQL, dashboard, agente de LLM, automação n8n, roteador Q-Learning# campus-navigator
+- [x] Dia 2: banco SQLite e KPIs em SQL
+- [ ] Dashboard, agente de LLM, automação n8n, roteador Q-Learning
