@@ -2,6 +2,21 @@ import streamlit as st
 
 from src.kpis import queries
 
+from pathlib import Path
+
+from src.data_gen.generate import main as generate_data
+from src.kpis.db import DB_PATH, load_csvs_to_db
+
+
+def ensure_database():
+    if not DB_PATH.exists():
+        Path("data").mkdir(exist_ok=True)
+        generate_data()
+        load_csvs_to_db()
+
+
+ensure_database()
+
 st.set_page_config(page_title="Campus Navigator", layout="wide")
 
 st.title("Campus Navigator")
