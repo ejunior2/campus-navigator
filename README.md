@@ -28,6 +28,7 @@ de qualidade de sinal por 14 dias.
 
 - [x] Dia 1: gerador de dados sintéticos
 - [x] Dia 2: banco SQLite e KPIs em SQL
-- [ ] Dashboard, agente de LLM, automação n8n, roteador Q-Learning
+- [x] Dia 3: dashboard Streamlit publicado
+- [ ] Agente de LLM, automação n8n, roteador Q-Learning
 
 **Live demo:** <https://campus-navigator-bccc.streamlit.app/>
