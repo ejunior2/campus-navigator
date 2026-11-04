@@ -1,10 +1,12 @@
-import streamlit as st
-
-from src.kpis import queries
-
+import sys
 from pathlib import Path
 
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
+import streamlit as st
+
 from src.data_gen.generate import main as generate_data
+from src.kpis import queries
 from src.kpis.db import DB_PATH, load_csvs_to_db
 
 
