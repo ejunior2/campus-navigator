@@ -25,6 +25,11 @@ def get_signal_by_hour(hour: int) -> dict:
         return {"error": f"hour {hour} not found (use 0-23)"}
     return {"hour": hour, "avg_signal": float(row.iloc[0]["avg_signal"])}
 
+def get_weakest_hours(top_n: int = 3) -> list[dict]:
+    """Return the hours of the day with the lowest average signal."""
+    df = queries.avg_signal_by_hour().sort_values("avg_signal").head(top_n)
+    return df.to_dict(orient="records")    
+
 
 if __name__ == "__main__":
     print(get_worst_zone())

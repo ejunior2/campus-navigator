@@ -20,6 +20,7 @@ TOOLS = [
     tools.get_best_zone,
     tools.get_weak_signal_pct,
     tools.get_signal_by_hour,
+    tools.get_weakest_hours,
 ]
 
 
@@ -34,7 +35,7 @@ def ask_agent(question: str, retries: int = 4) -> str:
             response = client.models.generate_content(
                 model=MODEL, contents=question, config=config
             )
-            return response.text
+            return response.text or "(no answer: the model returned no text)"
         except (errors.ServerError, httpx.TransportError):
             if attempt == retries - 1:
                 raise
