@@ -23,6 +23,7 @@ de qualidade de sinal por 14 dias.
     python -m pytest
     python -m src.kpis.db
     python -m src.kpis.queries
+    python -m streamlit run dashboard/app.py
 
 ## Roadmap
 
