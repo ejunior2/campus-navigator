@@ -1,15 +1,14 @@
 import os
 import time
 
+import httpx
 from dotenv import load_dotenv
 from google import genai
-from google.genai import errors
+from google.genai import errors, types
 
 load_dotenv()
 
 MODEL = "gemini-3.1-flash-lite"
-
-from google.genai import types
 
 
 def get_client() -> genai.Client:
@@ -21,6 +20,7 @@ def get_client() -> genai.Client:
         http_options=types.HttpOptions(timeout=30000),
     )
 
+
 def ask(prompt: str, retries: int = 4) -> str:
     client = get_client()
     for attempt in range(retries):
@@ -29,7 +29,7 @@ def ask(prompt: str, retries: int = 4) -> str:
                 model=MODEL, contents=prompt
             )
             return response.text
-        except errors.ServerError:
+        except (errors.ServerError, httpx.TransportError):
             if attempt == retries - 1:
                 raise
             time.sleep(2 ** attempt * 3)
