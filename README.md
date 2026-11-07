@@ -26,6 +26,7 @@ de qualidade de sinal por 14 dias.
     python -m streamlit run dashboard/app.py
     python -m src.agent.agent
     python -m src.agent.evaluate
+    python -m uvicorn src.api:app --port 8000
 
 ## Agente de LLM
 
@@ -34,12 +35,17 @@ perguntas (dentro do escopo, fora do escopo e entrada inválida). A avaliação
 é por palavra-chave, o que é uma limitação conhecida; usar um LLM como juiz
 seria a evolução natural.
 
+## Automação (n8n)
+
+Um workflow no n8n (`automation/daily_report.json`) chama o endpoint `/report` da API todos os dias às 8h e, se alguma zona passa de 45% de leituras com sinal fraco, monta a mensagem de alerta. Para usar: suba a API, rode `npx n8n` e importe o arquivo.
+
 ## Roadmap
 
 - [x] Dia 1: gerador de dados sintéticos
 - [x] Dia 2: banco SQLite e KPIs em SQL
 - [x] Dia 3: dashboard Streamlit publicado
 - [x] Dia 4: agente de LLM com tool calling e avaliação (10 casos)
-- [ ] Automação n8n, roteador Q-Learning
+- [x] Dia 5: API FastAPI e automação n8n
+- [ ] Roteador Q-Learning
 
 **Live demo:** <https://campus-navigator-bccc.streamlit.app/>
