@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 GRID_SIZE = 20
+WALL_PENALTY = 12
 
 
 def build_grid(seed: int = 42) -> pd.DataFrame:
@@ -32,6 +33,16 @@ def build_grid(seed: int = 42) -> pd.DataFrame:
     grid.loc[blocked, "walkable"] = False
 
     return grid
+
+
+def count_walls(blocked: np.ndarray, x0: int, y0: int, x1: int, y1: int) -> int:
+    steps = int(max(abs(x1 - x0), abs(y1 - y0)))
+    if steps == 0:
+        return 0
+    xs = np.rint(np.linspace(x0, x1, steps + 1)).astype(int)
+    ys = np.rint(np.linspace(y0, y1, steps + 1)).astype(int)
+    # ignora o ponto inicial e o final (a própria célula e o AP)
+    return int(blocked[ys[1:-1], xs[1:-1]].sum())  
 
 def place_access_points(grid: pd.DataFrame, n_aps: int = 8,
                         min_dist: float = 5.0, seed: int = 42) -> pd.DataFrame:
@@ -77,9 +88,18 @@ def compute_signal(grid: pd.DataFrame, aps: pd.DataFrame,
     min_dist = dist.min(axis=1)
     ap_range = aps["range"].to_numpy()[nearest]
 
-    # Qualidade base: 100 perto do AP, 0 no limite do alcance
-    base = np.clip(100 * (1 - min_dist / ap_range), 0, 100)
+    blocked = np.zeros((GRID_SIZE, GRID_SIZE), dtype=bool)
+    walls = grid.loc[~grid["walkable"]]
+    blocked[walls["y"].to_numpy(), walls["x"].to_numpy()] = True
 
+    ap_xy = aps[["x", "y"]].to_numpy()
+    n_walls = np.array([
+        count_walls(blocked, c[0], c[1], ap_xy[i][0], ap_xy[i][1])
+        for c, i in zip(cells, nearest)
+    ])
+
+    # Qualidade base: 100 perto do AP, 0 no limite do alcance
+    base = np.clip(100 * (1 - min_dist / ap_range) - WALL_PENALTY * n_walls, 0, 100)
     # Horários: de hora em hora, durante os dias pedidos
     timestamps = pd.date_range("2026-10-01", periods=days * 24, freq="h")
     hours = timestamps.hour.to_numpy()
@@ -99,7 +119,9 @@ def compute_signal(grid: pd.DataFrame, aps: pd.DataFrame,
         "x": np.tile(cells[:, 0], len(timestamps)),
         "y": np.tile(cells[:, 1], len(timestamps)),
         "signal_quality": quality.ravel(),
-    })    
+    }) 
+
+ 
 
 def main():
     g = build_grid()
