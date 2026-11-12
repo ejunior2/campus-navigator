@@ -27,6 +27,7 @@ de qualidade de sinal por 14 dias.
     python -m src.agent.agent
     python -m src.agent.evaluate
     python -m uvicorn src.api:app --port 8000
+    python -m src.router.compare
 
 ## Agente de LLM
 
@@ -44,8 +45,10 @@ Um workflow no n8n (`automation/daily_report.json`) chama o endpoint `/report` d
 - [x] Dia 1: gerador de dados sintéticos
 - [x] Dia 2: banco SQLite e KPIs em SQL
 - [x] Dia 3: dashboard Streamlit publicado
-- [x] Dia 4: agente de LLM com tool calling e avaliação (10 casos)
+- [x] Dia 4: agente de LLM com tool calling e avaliação
 - [x] Dia 5: API FastAPI e automação n8n
-- [ ] Roteador Q-Learning
+- [x] Dia 6: sinal com paredes, ambiente em grid, BFS e A*
+- [x] Dia 7: Q-Learning e comparação quantitativa
+- [ ] Mapa de calor e rotas no dashboard, agente com roteador, chat no Streamlit
 
 **Live demo:** <https://campus-navigator-bccc.streamlit.app/>
