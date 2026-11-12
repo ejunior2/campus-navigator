@@ -40,6 +40,10 @@ def ask_agent(question: str, retries: int = 4) -> str:
             if attempt == retries - 1:
                 raise
             time.sleep(2 ** attempt * 3)
+        except errors.ClientError as e:
+            if e.code != 429 or attempt == retries - 1:
+                raise
+            time.sleep(60)
 
 
 if __name__ == "__main__":
