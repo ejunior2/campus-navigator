@@ -10,7 +10,7 @@ from src.router.qlearning import QLearningAgent
 from src.router.search import astar, bfs
 
 WEAK = 40
-PAIRS = [((1, 1), (18, 18)), ((1, 18), (18, 1)), ((2, 9), (17, 10))]
+PAIRS = [((1, 1), (18, 18)), ((2, 16), (18, 1)), ((0, 15), (19, 0))]
 SEEDS = [0, 1, 2, 3, 4]
 
 
