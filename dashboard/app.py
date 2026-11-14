@@ -5,6 +5,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 import streamlit as st
 
+from dashboard.maps import heatmap_figure
 from src.data_gen.generate import main as generate_data
 from src.kpis import queries
 from src.kpis.db import DB_PATH, load_csvs_to_db
@@ -22,9 +23,7 @@ ensure_database()
 st.set_page_config(page_title="Campus Navigator", layout="wide")
 
 st.title("Campus Navigator")
-st.caption(
-    "Wi-Fi quality on a simulated campus. All data is synthetic."
-)
+st.caption("Wi-Fi quality on a simulated campus. All data is synthetic.")
 st.info(
     "**Signal score**: a synthetic 0-100 score. 100 = next to the access "
     "point, 0 = out of range. It is not a real unit such as dBm or Mbps."
@@ -64,18 +63,25 @@ weak_by_zone = weak_by_zone.rename(
 )
 by_hour = by_hour.rename(columns={"avg_signal": "Signal score (0-100)"})
 
-if not selected:
-    st.warning("Select at least one zone in the sidebar.")
-else:
-    col1, col2 = st.columns(2)
+tab_overview, tab_map = st.tabs(["Visão geral", "Mapa de conectividade"])
 
-    with col1:
-        st.subheader("Average signal score by zone")
-        st.bar_chart(by_zone, x="zone", y="Signal score (0-100)")
+with tab_overview:
+    if not selected:
+        st.warning("Select at least one zone in the sidebar.")
+    else:
+        col1, col2 = st.columns(2)
+        with col1:
+            st.subheader("Average signal score by zone")
+            st.bar_chart(by_zone, x="zone", y="Signal score (0-100)")
+        with col2:
+            st.subheader(f"Time with weak signal (< {threshold}) by zone")
+            st.bar_chart(weak_by_zone, x="zone", y="Weak readings (% of time)")
+        st.subheader("Average signal score by hour of day")
+        st.line_chart(by_hour, x="hour", y="Signal score (0-100)")
 
-    with col2:
-        st.subheader(f"Time with weak signal (< {threshold}) by zone")
-        st.bar_chart(weak_by_zone, x="zone", y="Weak readings (% of time)")
-
-    st.subheader("Average signal score by hour of day")
-    st.line_chart(by_hour, x="hour", y="Signal score (0-100)")
+with tab_map:
+    st.subheader("Wi-Fi signal map (20x20 grid)")
+    hour = st.slider("Hour of day", 0, 23, 10)
+    st.plotly_chart(heatmap_figure(hour), width="stretch")
+    st.caption("Empty cells are walls. Diamonds are access points. "
+               "Synthetic data and simplified signal model.")
