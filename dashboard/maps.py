@@ -44,15 +44,15 @@ def heatmap_figure(hour: int, route_paths: dict | None = None) -> go.Figure:
         z=z, x=list(range(SIZE)), y=list(range(SIZE)),
         colorscale=[[0, "#d73027"], [0.4, "#fee08b"], [1, "#1a9850"]],
         zmin=0, zmax=100, xgap=1, ygap=1,
-        colorbar=dict(title="Signal (0-100)"),
-        hovertemplate="x=%{x}, y=%{y}<br>signal=%{z:.1f}<extra></extra>",
+        colorbar=dict(title="Sinal (0-100)"),
+        hovertemplate="x=%{x}, y=%{y}<br>sinal=%{z:.1f}<extra></extra>",
     ))
     fig.add_trace(go.Scatter(
         x=aps["x"], y=aps["y"], mode="markers+text",
         text=[f"AP{i}" for i in aps["ap_id"]], textposition="top center",
         marker=dict(symbol="diamond", size=12, color="white",
                     line=dict(color="black", width=1.5)),
-        name="Access point",
+        name="Ponto de acesso",
     ))
     for name, (path, color) in (route_paths or {}).items():
         fig.add_trace(go.Scatter(

@@ -10,6 +10,13 @@ from src.data_gen.generate import main as generate_data
 from src.kpis import queries
 from src.kpis.db import DB_PATH, load_csvs_to_db
 
+# Rótulos exibidos na tela (os nomes nos dados continuam iguais)
+ZONE_LABELS = {"Patio": "Pátio"}
+
+
+def zone_label(zone):
+    return ZONE_LABELS.get(zone, zone)
+
 
 def ensure_database():
     if not DB_PATH.exists():
@@ -23,10 +30,13 @@ ensure_database()
 st.set_page_config(page_title="Campus Navigator", layout="wide")
 
 st.title("Campus Navigator")
-st.caption("Wi-Fi quality on a simulated campus. All data is synthetic.")
+st.caption(
+    "Qualidade do Wi-Fi em um campus simulado. Todos os dados são sintéticos."
+)
 st.info(
-    "**Signal score**: a synthetic 0-100 score. 100 = next to the access "
-    "point, 0 = out of range. It is not a real unit such as dBm or Mbps."
+    "**Índice de sinal**: pontuação sintética de 0 a 100. 100 = ao lado do "
+    "ponto de acesso, 0 = fora de alcance. Não é uma unidade real, como "
+    "dBm ou Mbps."
 )
 
 
@@ -43,45 +53,52 @@ def load_hour_data():
     return queries.avg_signal_by_hour()
 
 
-st.sidebar.header("Filters")
+st.sidebar.header("Filtros")
 threshold = st.sidebar.slider(
-    "Weak signal threshold", min_value=10, max_value=80, value=40, step=5
+    "Limite de sinal fraco", min_value=10, max_value=80, value=40, step=5
 )
 
 by_zone, weak_by_zone = load_zone_data(threshold)
 by_hour = load_hour_data()
 
 all_zones = by_zone["zone"].tolist()
-selected = st.sidebar.multiselect("Zones", all_zones, default=all_zones)
-
-by_zone = by_zone[by_zone["zone"].isin(selected)]
-weak_by_zone = weak_by_zone[weak_by_zone["zone"].isin(selected)]
-
-by_zone = by_zone.rename(columns={"avg_signal": "Signal score (0-100)"})
-weak_by_zone = weak_by_zone.rename(
-    columns={"weak_pct": "Weak readings (% of time)"}
+selected = st.sidebar.multiselect(
+    "Zonas", all_zones, default=all_zones, format_func=zone_label
 )
-by_hour = by_hour.rename(columns={"avg_signal": "Signal score (0-100)"})
+
+by_zone = by_zone[by_zone["zone"].isin(selected)].copy()
+weak_by_zone = weak_by_zone[weak_by_zone["zone"].isin(selected)].copy()
+
+by_zone["zone"] = by_zone["zone"].map(zone_label)
+weak_by_zone["zone"] = weak_by_zone["zone"].map(zone_label)
+
+by_zone = by_zone.rename(columns={"avg_signal": "Índice de sinal (0-100)"})
+weak_by_zone = weak_by_zone.rename(
+    columns={"weak_pct": "Leituras fracas (% do tempo)"}
+)
+by_hour = by_hour.rename(columns={"avg_signal": "Índice de sinal (0-100)"})
 
 tab_overview, tab_map = st.tabs(["Visão geral", "Mapa de conectividade"])
 
 with tab_overview:
     if not selected:
-        st.warning("Select at least one zone in the sidebar.")
+        st.warning("Selecione pelo menos uma zona na barra lateral.")
     else:
-        col1, col2 = st.columns(2)
+        col1, col2 = st.columns(2)  
         with col1:
-            st.subheader("Average signal score by zone")
-            st.bar_chart(by_zone, x="zone", y="Signal score (0-100)")
+            st.subheader("Índice médio de sinal por zona")
+            st.bar_chart(by_zone, x="zone", y="Índice de sinal (0-100)")
         with col2:
-            st.subheader(f"Time with weak signal (< {threshold}) by zone")
-            st.bar_chart(weak_by_zone, x="zone", y="Weak readings (% of time)")
-        st.subheader("Average signal score by hour of day")
-        st.line_chart(by_hour, x="hour", y="Signal score (0-100)")
+            st.subheader(f"Tempo com sinal fraco (< {threshold}) por zona")
+            st.bar_chart(weak_by_zone, x="zone", y="Leituras fracas (% do tempo)")
+        st.subheader("Índice médio de sinal por hora do dia")
+        st.line_chart(by_hour, x="hour", y="Índice de sinal (0-100)")
 
 with tab_map:
-    st.subheader("Wi-Fi signal map (20x20 grid)")
-    hour = st.slider("Hour of day", 0, 23, 10)
+    st.subheader("Mapa do sinal Wi-Fi (grid 20x20)")
+    hour = st.slider("Hora do dia", 0, 23, 10)
     st.plotly_chart(heatmap_figure(hour), width="stretch")
-    st.caption("Empty cells are walls. Diamonds are access points. "
-               "Synthetic data and simplified signal model.")
+    st.caption(
+        "Células vazias são paredes. Losangos são pontos de acesso. "
+        "Dados sintéticos e modelo de sinal simplificado."
+    )
