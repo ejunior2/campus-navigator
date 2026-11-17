@@ -12,6 +12,11 @@ SYSTEM_PROMPT = (
     "0 (no signal) to 100 (excellent); below 40 is considered weak. "
     "Always use the provided tools to get data; never invent numbers. "
     "If a question cannot be answered with the tools, say so. "
+    "For routes, use get_route or compare_routes; the zones are Biblioteca, "
+    "Bloco A, Bloco B and Pátio. Routes are computed by A* on the average "
+    "signal across all hours, from the most central walkable cell of each "
+    "zone. Never describe a route or numbers that a tool did not return, and "
+    "mention that the route comes from the algorithm. "
     "Answer in the same language as the user, briefly."
 )
 
@@ -21,6 +26,8 @@ TOOLS = [
     tools.get_weak_signal_pct,
     tools.get_signal_by_hour,
     tools.get_weakest_hours,
+    tools.get_route,
+    tools.compare_routes,
 ]
 
 
@@ -51,6 +58,8 @@ if __name__ == "__main__":
         "Qual zona tem o pior sinal?",
         "Como está o sinal às 10h?",
         "Qual a cor do céu?",
+        "Qual a melhor rota da Biblioteca até o Bloco B?",
+        "Qual a diferença entre a rota mais curta e a de melhor sinal da Biblioteca ao Bloco B?",
     ]:
         print(f"> {q}")
         print(ask_agent(q))
