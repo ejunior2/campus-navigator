@@ -6,6 +6,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 import streamlit as st
 
 from dashboard.maps import heatmap_figure
+from dashboard.routes import render_routes_tab
 from src.data_gen.generate import main as generate_data
 from src.kpis import queries
 from src.kpis.db import DB_PATH, load_csvs_to_db
@@ -78,8 +79,9 @@ weak_by_zone = weak_by_zone.rename(
 )
 by_hour = by_hour.rename(columns={"avg_signal": "Índice de sinal (0-100)"})
 
-tab_overview, tab_map = st.tabs(["Visão geral", "Mapa de conectividade"])
-
+tab_overview, tab_map, tab_routes = st.tabs(
+    ["Visão geral", "Mapa de conectividade", "Comparação de rotas"]
+)
 with tab_overview:
     if not selected:
         st.warning("Selecione pelo menos uma zona na barra lateral.")
@@ -102,3 +104,6 @@ with tab_map:
         "Células vazias são paredes. Losangos são pontos de acesso. "
         "Dados sintéticos e modelo de sinal simplificado."
     )
+
+with tab_routes:
+    render_routes_tab(threshold)
