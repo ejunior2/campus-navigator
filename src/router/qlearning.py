@@ -43,6 +43,7 @@ class QLearningAgent:
                       self.eps_start - (self.eps_start - self.eps_end) * ep / (episodes * 0.8))
             x, y = starts[self.rng.integers(len(starts))]
             total, reached, steps = 0.0, False, 0
+            sig_total = 0.0            
             for steps in range(1, max_steps + 1):
                 if self.rng.random() < eps:
                     a = int(self.rng.integers(len(ACTIONS)))
@@ -50,6 +51,7 @@ class QLearningAgent:
                     a = int(np.argmax(self.q[y, x]))
                 nx, ny = self.env.step(x, y, a)
                 r = self._reward(x, y, nx, ny)
+                sig_total += self.env.cell_signal(nx, ny)
                 best_next = 0.0 if (nx, ny) == self.goal else self.q[ny, nx].max()
                 self.q[y, x, a] += self.alpha * (r + self.gamma * best_next - self.q[y, x, a])
                 total += r
@@ -58,7 +60,8 @@ class QLearningAgent:
                     reached = True
                     break
             history.append({"episode": ep, "reward": total, "steps": steps,
-                            "success": reached, "epsilon": eps})
+                            "success": reached, "epsilon": eps,
+                            "mean_signal": sig_total / steps})
         return history
 
     def route(self, start, max_steps=300):

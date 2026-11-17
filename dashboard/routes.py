@@ -34,12 +34,12 @@ def load_env():
 
 
 @st.cache_data(show_spinner=False)
-def train_qlearning(_env, start, goal):
+def train_with_history(_env, start, goal):
     t = time.perf_counter()
     agent = QLearningAgent(_env, goal, seed=0)
-    agent.train(start)
+    hist = agent.train(start)
     ms = (time.perf_counter() - t) * 1000
-    return agent.route(start), ms
+    return agent.route(start), ms, pd.DataFrame(hist)
 
 
 def compute_routes(env, start, goal):
@@ -54,7 +54,8 @@ def compute_routes(env, start, goal):
         path = fn()
         results[name] = (path, (time.perf_counter() - t) * 1000)
     with st.spinner("Treinando o Q-Learning (alguns segundos)..."):
-        results["Q-Learning"] = train_qlearning(env, start, goal)
+        path, ms, _ = train_with_history(env, start, goal)
+        results["Q-Learning"] = (path, ms)
     return results
 
 
