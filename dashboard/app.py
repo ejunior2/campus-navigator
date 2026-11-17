@@ -5,6 +5,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 import streamlit as st
 
+from dashboard.learning import render_learning_tab
 from dashboard.maps import heatmap_figure
 from dashboard.routes import render_routes_tab
 from src.data_gen.generate import main as generate_data
@@ -79,8 +80,9 @@ weak_by_zone = weak_by_zone.rename(
 )
 by_hour = by_hour.rename(columns={"avg_signal": "Índice de sinal (0-100)"})
 
-tab_overview, tab_map, tab_routes = st.tabs(
-    ["Visão geral", "Mapa de conectividade", "Comparação de rotas"]
+tab_overview, tab_map, tab_routes, tab_learning = st.tabs(
+    ["Visão geral", "Mapa de conectividade", "Comparação de rotas",
+     "Treinamento do Q-Learning"]
 )
 with tab_overview:
     if not selected:
@@ -107,3 +109,5 @@ with tab_map:
 
 with tab_routes:
     render_routes_tab(threshold)
+with tab_learning:
+    render_learning_tab()
